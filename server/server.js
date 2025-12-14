@@ -17,6 +17,13 @@ app.use((req, res, next) => {
 });
 
 // Database Connection
+console.log('--- DB CONNECTION DEBUG ---');
+console.log('Server:', config.server);
+console.log('Database:', config.database);
+console.log('User:', config.user);
+console.log('Password Length:', config.password ? config.password.length : 0); 
+console.log('---------------------------');
+
 sql.connect(config).then(pool => {
     if (pool.connected) {
         console.log('Connected to SQL Server');

@@ -3,7 +3,7 @@ require('dotenv').config();
 const config = {
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
+    database: process.env.DB_NAME || process.env.DB_DATABASE,
     server: process.env.DB_SERVER,
     pool: {
         max: 10,
