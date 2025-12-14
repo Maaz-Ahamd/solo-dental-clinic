@@ -43,12 +43,29 @@ const Appointments = () => {
         setIsEditModalOpen(true);
     };
 
-    const formatDateTime = (dateString) => {
+    const formatDate = (dateString) => {
+        if (!dateString) return '-';
         const date = new Date(dateString);
-        return {
-            date: date.toLocaleDateString(),
-            time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        };
+        return date.toLocaleDateString();
+    };
+
+    const formatTime = (timeString) => {
+        if (!timeString) return '-';
+        // Handle if likely string "HH:MM:SS" or ISO Date
+        const date = new Date(timeString);
+        // If invalid date (e.g. raw time string like '14:30:00'), prepend dummy date
+        if (isNaN(date.getTime())) {
+             const timeParts = timeString.split(':');
+             const d = new Date();
+             d.setHours(timeParts[0]);
+             d.setMinutes(timeParts[1]);
+             return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); 
+        // Note: SQL TIME usually returns as 1970-01-01T...Z. Using UTC prevents local conversion shift if just displaying raw time is desired, 
+        // BUT user likely wants conversion. Let's stick to standard conversion but from the TIME object.
+        // Actually, simplest is just allow local conversion from the date object sent by mssql driver
+        // return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
     return (
@@ -88,18 +105,17 @@ const Appointments = () => {
                                 </tr>
                             ) : (
                                 appointments.map((app) => {
-                                    const { date, time } = formatDateTime(app.appointment_date);
                                     return (
                                         <tr key={app.appointment_id} className="hover:bg-slate-50 transition-colors">
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex flex-col">
                                                     <div className="flex items-center text-sm font-medium text-slate-900">
                                                         <CalendarIcon className="h-3 w-3 mr-1 text-slate-400" />
-                                                        {date}
+                                                        {formatDate(app.appointment_date)}
                                                     </div>
                                                     <div className="flex items-center text-sm text-slate-500 mt-1">
                                                         <Clock className="h-3 w-3 mr-1 text-slate-400" />
-                                                        {time}
+                                                        {formatTime(app.appointment_time)}
                                                     </div>
                                                 </div>
                                             </td>
